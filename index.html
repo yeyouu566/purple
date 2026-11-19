@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="대화로 점검하는 무료 비즈니스 모델 진단">
+  <title>BM Management · 비즈니스 모델 자가진단</title>
+  <style>
+:root {
+  color-scheme: light;
+  --ink: #21154a;
+  --muted: #655985;
+  --purple: #6c3bdc;
+  --purple-light: #efe8ff;
+  --border: #e9e2f4;
+  --shadow: 0 16px 48px #38216b12;
+  font-family: system-ui, "Noto Sans KR", "Malgun Gothic", sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: radial-gradient(ellipse at 90% 0%, #eee3ff, transparent 35%), #f8f6fc;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .6; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex="0"]:focus-visible {
+  outline: 3px solid #8553ee;
+  outline-offset: 3px;
+}
+h1:focus { outline: none; }
+h1, h2, h3, p { margin: 0; }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.app { min-height: 100vh; display: grid; grid-template-columns: 218px minmax(0, 1fr); }
+.side {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid var(--border);
+  padding: 26px 16px;
+}
+.logo {
+  border: 0;
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  font-weight: 850;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+.mark {
+  padding: 9px;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(145deg, #9555ff, #5230cf);
+  font-style: italic;
+  box-shadow: 0 6px 14px #8555e64d;
+}
+.nav { display: grid; gap: 9px; margin-top: 35px; }
+.nav button {
+  min-height: 44px;
+  padding: 10px 12px;
+  text-align: left;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.nav button:not(:disabled):hover { background: var(--purple-light); }
+.nav button.active { color: #fff; background: var(--purple); }
+.nav button.active:hover { background: #5730b0; }
+.nav-note { color: var(--muted); padding: 0 12px; font-size: 11px; }
+.menu { display: none; }
+.main { width: 100%; min-width: 0; max-width: 1350px; margin: 0 auto; padding: 44px clamp(20px, 4vw, 70px) 60px; }
+.panel { background: #fff; border: 1px solid var(--border); border-radius: 23px; box-shadow: var(--shadow); overflow-wrap: anywhere; }
+
+.hero { text-align: center; padding: 54px 20px 16px; }
+.hero h1 { font-size: clamp(29px, 4.4vw, 54px); letter-spacing: -.055em; line-height: 1.19; word-break: keep-all; }
+.hero p { margin-top: 16px; color: var(--muted); font-size: clamp(14px, 2vw, 17px); line-height: 1.6; word-break: keep-all; }
+.wave-stage { height: 240px; position: relative; overflow: hidden; display: grid; place-items: center; }
+.wave-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wave { fill: none; stroke: #8d5aff; stroke-width: 1.4; opacity: .39; animation: wave-move 4s ease-in-out infinite alternate; transform-origin: center; }
+.orb {
+  position: relative;
+  width: 116px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  color: #fff;
+  background: radial-gradient(circle at 35% 24%, #ae73ff, #7b43e5 50%, #4320ae);
+  box-shadow: 0 0 0 9px #a579ff25, 0 0 0 19px #a579ff15, 0 16px 28px #7133ed55;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  animation: float 3.6s ease-in-out infinite;
+}
+.orb strong { font-size: 27px; font-style: italic; line-height: 1.1; }
+.orb span { font-size: 11px; }
+@keyframes float { 50% { transform: translateY(-9px); } }
+@keyframes wave-move { to { transform: translateY(10px) scaleY(.8); } }
+.intro-actions { padding: 5px 24px 32px; text-align: center; }
+.primary, .secondary {
+  min-height: 44px;
+  border-radius: 11px;
+  padding: 10px 16px;
+  font-weight: 750;
+  font-size: 14px;
+}
+.primary { color: #fff; background: linear-gradient(125deg, #8b39e9, #5e35d8); border: 1px solid transparent; }
+.primary:not(:disabled):hover { filter: brightness(.92); }
+.secondary { color: #4b337e; background: #fff; border: 1px solid #e0d5f2; }
+.secondary:not(:disabled):hover { background: #f6f1ff; }
+.intro-actions .primary { padding-inline: 26px; }
+.small-note, .inline-status { margin-top: 12px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.inline-status:empty { display: none; }
+
+.chat-area { max-width: 900px; margin: 0 auto; }
+.chat-header { padding: 22px 24px 10px; display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px 12px; }
+.chat-header h1 { font-size: clamp(19px, 3vw, 26px); }
+.progress { color: var(--muted); font-size: 13px; font-weight: 700; }
+.track { width: calc(100% - 48px); height: 7px; margin: 0 24px; border: 0; border-radius: 8px; overflow: hidden; background: #ede7f9; appearance: none; display: block; }
+.track::-webkit-progress-bar { background: #ede7f9; }
+.track::-webkit-progress-value { background: var(--purple); }
+.track::-moz-progress-bar { background: var(--purple); }
+#survey-wave .wave-stage { height: 134px; }
+#survey-wave .orb { width: 71px; }
+#survey-wave .orb strong { font-size: 20px; }
+#survey-wave .orb span { font-size: 9px; }
+.analysis-data-note { margin: 0 24px 10px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.chat-content { padding: 4px 24px 14px; max-height: min(40dvh, 340px); min-height: 155px; overflow-y: auto; scrollbar-gutter: stable; }
+.bubble { width: fit-content; max-width: 86%; padding: 11px 14px; margin: 8px 0; border-radius: 15px; font-size: 15px; line-height: 1.65; }
+.bot { background: #f1ebff; border-bottom-left-radius: 5px; }
+.mine { margin-left: auto; color: #fff; background: #6e41d8; border-bottom-right-radius: 5px; }
+.sender { margin-top: 10px; color: #6c529e; font-size: 12px; font-weight: 750; }
+.respond { border-top: 1px solid var(--border); padding: 15px 24px 8px; }
+.choices { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
+.choice { background: #fff; color: #4b3573; border: 1px solid #e2d8f3; border-radius: 10px; min-height: 48px; padding: 7px 4px; font-size: 13px; font-weight: 650; }
+.choice:hover, .choice[aria-pressed="true"] { background: #efe7ff; border-color: #7e52da; }
+.choice strong { display: block; color: #6130c5; font-size: 17px; }
+.answer-form { display: flex; gap: 8px; }
+.answer-form input { min-width: 0; flex: 1; border: 1px solid #dcd3ef; border-radius: 10px; padding: 10px 12px; font-size: 16px; }
+.submit-report { margin-top: 10px; }
+.chat-footer { padding: 5px 24px 14px; }
+.chat-footer button { font-size: 13px; }
+
+.loading {
+  min-height: clamp(355px, 65vh, 560px);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(140deg, #4e20bb, #702fdd 58%, #9155f4);
+}
+.analysis-content { z-index: 1; padding: 20px; width: min(100%, 610px); }
+.analysis-brand { margin-bottom: 24px; font-style: italic; font-weight: 800; font-size: 19px; }
+.loading h1 { font-size: clamp(17px, 3.6vw, 26px); margin-top: 8px; }
+.loading p[role="alert"] { margin: 10px 0 18px; }
+.loading .report-actions { justify-content: center; }
+.loading-text { font: 800 clamp(22px, 5vw, 32px)/1.4 ui-monospace, monospace; letter-spacing: .13em; margin-top: 14px; }
+.pixelbar { display: flex; gap: 4px; width: min(85%, 320px); border: 2px solid #fff; padding: 5px; margin: 0 auto; height: 36px; }
+.pixelbar i { flex: 1; background: #321078; animation: pixels 1.2s steps(1) infinite; animation-delay: calc(var(--i) * .14s); }
+@keyframes pixels { 48% { background: #d7b6ff; } }
+.analysis-wave { position: absolute; inset: auto 0 0; opacity: .85; height: 115px; }
+.analysis-wave .wave { stroke: #eee3ff; }
+
+.report-header { margin-bottom: 20px; }
+.report-header h1 { font-size: clamp(23px, 4vw, 35px); letter-spacing: -.035em; }
+.business-title { margin: 7px 0; font-size: 17px; font-weight: 650; overflow-wrap: anywhere; }
+.report-header time { color: var(--muted); font-size: 13px; }
+.summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 14px; padding: 25px; }
+.summary h2 { font-size: clamp(19px, 3vw, 28px); margin: 7px 0; word-break: keep-all; }
+.summary p { max-width: 620px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+.tag, .summary .tag { color: #6a32c7; font-weight: 750; font-size: 12px; }
+.score {
+  display: grid;
+  place-items: center;
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(84px, 14vw, 125px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(var(--purple) var(--score), #eee7fa 0);
+}
+.score::before { content: ''; position: absolute; inset: 9%; border-radius: 50%; background: #fff; }
+.score-value { position: relative; text-align: center; }
+.score-value > * { display: block; }
+.score-value strong { font-size: clamp(24px, 5vw, 35px); line-height: 1.04; }
+.score-value small { color: var(--muted); font-size: 11px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.kpi { padding: 17px; }
+.kpi h2 { font-size: 14px; }
+.kpi-score { margin: 5px 0; }
+.kpi-score strong { font-size: 28px; }
+.kpi-score small { font-size: 12px; color: var(--muted); }
+.level { display: inline-block; border-radius: 20px; padding: 4px 8px; font-size: 11px; font-weight: 750; }
+.level.good { color: #136951; background: #dcf4eb; }
+.level.mid { color: #754509; background: #fff0d3; }
+.level.bad { color: #9b293d; background: #fde7ec; }
+.reportgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-bottom: 14px; }
+.reportgrid .reportcard { margin-bottom: 0; }
+.reportcard { padding: 21px; margin-bottom: 14px; min-width: 0; }
+.reportcard h2 { font-size: 18px; margin-bottom: 13px; }
+.priority-card { border-left: 4px solid var(--purple); background: #faf7ff; }
+.priority-card .recommend { margin-top: 5px; }
+.claude-card .validation-list { margin: 15px 0; }
+.claude-card h3 { font-size: 15px; }
+.recommend, .subcard p, .validation-list, .weak-items, .evidence { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.bars { display: grid; gap: 17px; }
+.barlabel { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; margin-bottom: 6px; }
+.barbg, .barfill { height: 9px; border-radius: 12px; }
+.barbg { background: #eee8f9; }
+.barfill { background: linear-gradient(90deg, #9854ee, #603bd7); }
+.radar { width: 100%; height: auto; max-height: 260px; display: block; }
+.radar-grid { stroke: #e4dcf2; fill: none; }
+.radar text { font-size: 12px; font-weight: 700; fill: var(--muted); }
+.radar-shape { fill: #8453ee38; stroke: #7839e4; stroke-width: 2.5; }
+.radar-point { fill: #7839e4; }
+.subcard + .subcard, .validation-list > div + div { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
+.subcard h3, .evidence h3 { font-size: 15px; margin-bottom: 4px; }
+.next-action { margin-top: 3px; }
+.evidence { margin-top: 14px; padding: 13px; border-radius: 12px; background: #f6f0ff; }
+.evidence ul, .weak-items { margin: 6px 0 0; padding-left: 20px; }
+.validation-list { margin: 0; }
+.validation-list > div { display: grid; grid-template-columns: 90px 1fr; gap: 10px; }
+.validation-list dt { font-weight: 750; color: var(--ink); }
+.validation-list dd { margin: 0; min-width: 0; }
+.report-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.copy-summary { width: 100%; min-height: 140px; margin-top: 9px; }
+dialog { width: min(calc(100% - 32px), 500px); border: 1px solid var(--border); border-radius: 20px; padding: 24px; color: var(--ink); }
+dialog::backdrop { background: #1c104e70; }
+dialog p { margin: 13px 0 17px; line-height: 1.65; }
+
+@media (max-width: 850px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .menu { display: block; }
+  .nav { display: none; width: 100%; margin: 8px 0 0; }
+  .menu[aria-expanded="true"] + .nav { display: grid; }
+  .main { padding-top: 22px; }
+}
+@media (max-width: 590px) {
+  .main { padding-inline: 12px; }
+  .hero { padding-top: 37px; }
+  .wave-stage { height: 167px; }
+  .orb { width: 95px; }
+  .intro-actions .primary { width: 100%; }
+  .chat-header { padding: 15px 13px 9px; }
+  .track { width: calc(100% - 26px); margin-inline: 13px; }
+  #survey-wave .wave-stage { height: 96px; }
+  #survey-wave .orb { width: 55px; }
+  #survey-wave .orb strong { font-size: 17px; }
+  .analysis-data-note { margin-inline: 12px; }
+  .chat-content { padding-inline: 12px; }
+  .bubble { max-width: 96%; font-size: 14px; }
+  .respond, .chat-footer { padding-inline: 12px; }
+  .choices { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .answer-form { flex-wrap: wrap; }
+  .answer-form input { flex-basis: 65%; }
+  .answer-form .secondary { margin-left: auto; }
+  .reportgrid { grid-template-columns: minmax(0, 1fr); }
+  .summary { padding: 16px; gap: 10px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .reportcard { padding: 16px; }
+  .validation-list > div { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; }
+}
+.retry-claude { margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="side">
+      <button id="home" class="logo" type="button"><span class="mark">BM</span> BM Management</button>
+      <button id="menu" class="secondary menu" type="button" aria-controls="navigation" aria-expanded="false">메뉴</button>
+      <nav id="navigation" class="nav" aria-label="주 메뉴">
+        <button id="diagnosis-nav" class="active" type="button" aria-current="page">진단하기</button>
+        <button id="report-nav" type="button" aria-describedby="report-note" disabled>진단 리포트</button>
+        <p id="report-note" class="nav-note">진단을 완료하면 볼 수 있어요.</p>
+        <button id="guide-nav" type="button">이용 안내</button>
+      </nav>
+    </header>
+    <main id="content" class="main">
+      <section id="landing" class="panel">
+        <div class="hero">
+          <h1 tabindex="-1">내 사업, 왜 선택받지 못할까?</h1>
+          <p>시장 수요부터 차별화까지, 대화로 점검하는 무료 비즈니스 모델 진단</p>
+        </div>
+        <div id="landing-wave"></div>
+        <div class="intro-actions">
+          <button id="start" class="primary" type="button">무료 진단 시작하기 →</button>
+          <p class="small-note">기본정보 3개 · 진단 20문항 · 회원가입 없이 결과 확인</p>
+          <p id="start-status" class="inline-status" role="status"></p>
+        </div>
+      </section>
+      <section id="survey" class="panel chat-area" hidden>
+        <div class="chat-header">
+          <h1 tabindex="-1">비즈니스 모델 진단</h1>
+          <span id="step" class="progress"></span>
+        </div>
+        <progress id="progress" class="track" value="0" max="23" aria-label="전체 설문 진행률"></progress>
+        <div id="survey-wave"></div>
+        <p id="analysis-data-note" class="analysis-data-note"></p>
+        <div id="transcript" class="chat-content" aria-label="대화 내역" tabindex="0"></div>
+        <p id="question-announcement" class="sr-only" aria-live="polite"></p>
+        <div id="composer" class="respond"></div>
+        <div class="chat-footer"><button id="previous" class="secondary" type="button">← 이전 질문</button></div>
+      </section>
+      <section id="analyzing" class="panel loading" hidden></section>
+      <section id="report" hidden></section>
+      <noscript>진단을 시작하려면 브라우저에서 JavaScript를 켜 주세요.</noscript>
+    </main>
+  </div>
+  <dialog id="guide">
+    <h2>이용 안내</h2>
+    <p>사업 아이디어를 입력하고 시장 수요, 해결 가능성, 경쟁 환경, 차별화에 관한 20개 문항에 답하면 자가진단 리포트가 생성돼요. 현재 탭에서 답변을 이어갈 수 있어요.</p>
+    <form method="dialog"><button class="primary" type="submit">닫기</button></form>
+  </dialog>
+  <script src="./bm-logic.js"></script>
+  <script type="module">
+/* 데이터 연결 */
+const staticMode = location.protocol === 'file:';
+const basics = [
+  {
+    "key": "idea",
+    "required": true,
+    "prompt": "어떤 사업이나 서비스를 준비하고 있나요? 한 문장으로 소개해 주세요.",
+    "placeholder": "예. 초기 브랜드를 위한 맞춤형 마케팅 서비스",
+    "maxLength": 80
+  },
+  {
+    "key": "customer",
+    "required": false,
+    "prompt": "이 서비스를 가장 필요로 하는 고객은 누구인가요?",
+    "placeholder": "예. 마케터가 없는 초기 브랜드",
+    "maxLength": 80
+  },
+  {
+    "key": "comp",
+    "required": false,
+    "prompt": "고객이 지금 쓰는 경쟁 서비스나 다른 해결 방법은 무엇인가요?",
+    "placeholder": "예. 프리랜서, 광고대행사, 직접 운영",
+    "maxLength": 100
+  }
+];
+
+function publicQuestions(logic) {
+  return {
+    scaleLabels: logic.SCALE_LABELS,
+    areas: logic.AREAS.map(({ key, name, question, items }) => ({ key, name, question, items })),
+  };
+}
+
+async function requestJson(url, options) {
+  const response = await fetch(url, options);
+  const body = await response.json();
+  // The server may still return a completed self-assessment when Claude is unavailable.
+  if (!response.ok && !body.analysisError) throw new Error(body.error || '요청을 처리할 수 없어요.');
+  return body;
+}
+
+async function getQuestions() {
+  const definition = staticMode ? publicQuestions(window.BMLogic) : await requestJson('./api/questions');
+  return { ...definition, basics };
+}
+
+async function getReport(info, answers, signal) {
+  if (staticMode) return window.BMLogic.buildReport(info, answers);
+  return requestJson('./api/report', {
+    method: 'POST',
+    signal,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ info, answers }),
+  });
+}
+
+/* 공통 컴포넌트 */
+function element(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function button(label, className, onClick) {
+  const node = element('button', className, label);
+  node.type = 'button';
+  node.addEventListener('click', onClick);
+  return node;
+}
+
+function svgNode(tag, attributes) {
+  const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [key, value] of Object.entries(attributes)) node.setAttribute(key, value);
+  return node;
+}
+
+function bmOrbWave({ orb = true } = {}) {
+  const stage = element('div', 'wave-stage');
+  stage.setAttribute('aria-hidden', 'true');
+  const waves = svgNode('svg', { viewBox: '0 0 1000 220', preserveAspectRatio: 'none' });
+  for (let line = 0; line < 13; line++) {
+    const y = 72 + line * 6;
+    waves.append(svgNode('path', {
+      class: 'wave',
+      d: `M-30 ${y + 50} C135 ${y - 135},240 ${y + 155},370 ${y + 16} S510 ${y + 82},646 ${y + 2} S847 ${y - 155},1045 ${y + 64}`,
+      style: `animation-delay: -${line * 0.21}s`,
+    }));
+  }
+  stage.append(waves);
+  if (orb) {
+    const mark = element('div', 'orb');
+    mark.append(element('strong', '', 'BM'), element('span', '', 'Management'));
+    stage.append(mark);
+  }
+  return stage;
+}
+
+function analysisScreen({ message, retry, review } = {}) {
+  const stage = element('div', 'analysis-content');
+  stage.append(element('div', 'analysis-brand', 'BM Management'));
+  if (message) {
+    const heading = element('h1', '', '리포트를 만드는 중 문제가 생겼어요.');
+    heading.tabIndex = -1;
+    const hint = element('p', '', message);
+    hint.setAttribute('role', 'alert');
+    const actions = element('div', 'report-actions');
+    actions.append(button('다시 시도', 'secondary', retry), button('답변 확인', 'secondary', review));
+    stage.append(heading, hint, actions);
+  } else {
+    const pixels = element('div', 'pixelbar');
+    pixels.setAttribute('aria-hidden', 'true');
+    for (let index = 0; index < 8; index++) {
+      const pixel = element('i');
+      pixel.style.setProperty('--i', index);
+      pixels.append(pixel);
+    }
+    const loading = element('p', 'loading-text', 'LOADING…');
+    loading.setAttribute('aria-hidden', 'true');
+    const heading = element('h1', '', '비즈니스 모델 분석 중');
+    heading.tabIndex = -1;
+    stage.append(pixels, loading, heading);
+  }
+  const wave = bmOrbWave({ orb: false });
+  wave.classList.add('analysis-wave');
+  return [stage, wave];
+}
+
+/* 채팅형 설문 */
+function buildSteps(definition) {
+  const textSteps = definition.basics.map(info => ({ ...info, type: 'text' }));
+  const scaleSteps = definition.areas.flatMap((area, areaIndex) =>
+    area.items.map((prompt, itemIndex) => ({ type: 'scale', area, areaIndex, itemIndex, prompt })),
+  );
+  return [...textSteps, ...scaleSteps];
+}
+
+function chatTranscript(steps, responses, currentIndex, definition) {
+  const nodes = [element('p', 'bubble bot', '안녕하세요! 지금 사업의 수요와 차별점을 함께 점검해 볼게요. 현재 확인한 사실을 바탕으로 답해 주세요.')];
+  for (let index = 0; index <= currentIndex; index++) {
+    const step = steps[index];
+    const label = step.type === 'scale' ? 'BM Management · ' + step.area.name : 'BM Management';
+    const bubble = element('p', 'bubble bot', step.prompt);
+    if (index === currentIndex) bubble.id = 'active-question';
+    nodes.push(element('p', 'sender', label), bubble);
+    if (index < currentIndex) {
+      const answer = responses[index];
+      const message = step.type === 'scale'
+        ? `${answer}점 · ${definition.scaleLabels[answer - 1]}`
+        : answer || '건너뛰었어요.';
+      const reply = element('p', 'bubble mine');
+      reply.append(element('span', 'sr-only', '내 답변. '), document.createTextNode(message));
+      nodes.push(reply);
+    }
+  }
+  return nodes;
+}
+
+function textAnswerComposer(step, value, maxLength, onAnswer) {
+  const form = element('form', 'answer-form');
+  const input = element('input');
+  input.id = 'answer';
+  input.type = 'text';
+  input.autocomplete = 'off';
+  input.maxLength = maxLength;
+  input.placeholder = step.placeholder;
+  input.value = value ?? '';
+  input.required = step.required;
+  input.setAttribute('aria-labelledby', 'active-question');
+
+  input.addEventListener('input', () => input.setCustomValidity(''));
+  let composing = false;
+  input.addEventListener('compositionstart', () => { composing = true; });
+  input.addEventListener('compositionend', () => { composing = false; });
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && (composing || event.isComposing || event.keyCode === 229)) event.preventDefault();
+  });
+
+  const submit = element('button', 'primary', '전송');
+  submit.type = 'submit';
+  form.append(input, submit);
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    if (composing) return;
+    const value = input.value.trim();
+    if (step.required && !value) {
+      input.setCustomValidity('사업 아이디어를 입력해 주세요.');
+      input.reportValidity();
+      return;
+    }
+    onAnswer(value);
+  });
+  if (!step.required) form.append(button('건너뛰기', 'secondary', () => onAnswer('')));
+  return form;
+}
+
+function scaleAnswerComposer(labels, value, isLast, onAnswer, onFinish) {
+  const wrapper = element('div');
+  const group = element('div', 'choices');
+  group.setAttribute('role', 'group');
+  group.setAttribute('aria-labelledby', 'active-question');
+  const choices = labels.map((label, index) => {
+    const score = index + 1;
+    const choice = button('', 'choice', () => {
+      onAnswer(score);
+      if (!isLast) return;
+      choices.forEach((item, itemIndex) => item.setAttribute('aria-pressed', String(itemIndex === index)));
+      submit.disabled = false;
+    });
+    choice.append(element('strong', '', score), document.createTextNode(label));
+    choice.setAttribute('aria-pressed', String(score === value));
+    return choice;
+  });
+  group.append(...choices);
+  wrapper.append(group);
+  const submit = isLast ? button('진단 결과 보기', 'primary submit-report', onFinish) : null;
+  if (submit) {
+    submit.disabled = value === undefined;
+    wrapper.append(submit);
+  }
+  return wrapper;
+}
+
+/* 리포트 */
+function card(title) {
+  const block = element('section', 'panel reportcard');
+  block.append(element('h2', '', title));
+  return block;
+}
+
+function reportHeader(report) {
+  const header = element('header', 'report-header');
+  const title = element('h1', '', '비즈니스 모델 진단 리포트');
+  title.tabIndex = -1;
+  const date = element('time', '', report.meta.date);
+  date.dateTime = report.meta.date;
+  header.append(title, element('p', 'business-title', report.info.idea), date);
+  return header;
+}
+
+function verdictCard({ verdict, total }) {
+  const summary = element('section', 'panel summary');
+  const text = element('div');
+  text.append(
+    element('p', 'tag', '응답을 바탕으로 계산한 자가진단 결과'),
+    element('h2', '', verdict.label),
+    element('p', '', verdict.desc),
+  );
+  const ring = element('div', 'score');
+  ring.style.setProperty('--score', total + '%');
+  const score = element('span', 'score-value');
+  score.append(element('small', '', '종합'), element('strong', '', total), element('small', '', '/ 100'));
+  ring.append(score);
+  summary.append(text, ring);
+  return summary;
+}
+
+function areaScoreCards(areas) {
+  const cards = element('div', 'kpis');
+  for (const area of areas) {
+    const item = element('section', 'panel kpi');
+    const score = element('p', 'kpi-score');
+    score.append(element('strong', '', area.score), element('small', '', ' / 100'));
+    item.append(element('h2', 'name', area.name), score, element('span', 'level ' + area.level, area.levelLabel));
+    cards.append(item);
+  }
+  return cards;
+}
+
+function priorityActionCard(report) {
+  const section = card('지금 가장 먼저 할 일');
+  section.classList.add('priority-card');
+  section.append(element('p', 'tag', report.priority.area), element('p', 'recommend', report.priority.text));
+  return section;
+}
+
+function areaRadarChart(areas) {
+  const section = card('영역별 진단');
+  const chart = svgNode('svg', {
+    class: 'radar', viewBox: '0 0 340 236', role: 'img',
+    'aria-label': areas.map(area => `${area.name} ${area.score}점`).join(', '),
+  });
+  function xy(index, radius) {
+    const angle = (index - 1) * Math.PI / 2;
+    return [170 + Math.cos(angle) * radius, 118 + Math.sin(angle) * radius];
+  }
+  for (const radius of [21, 42, 63, 84]) {
+    chart.append(svgNode('polygon', {
+      points: areas.map((_, index) => xy(index, radius).join(',')).join(' '),
+      class: 'radar-grid',
+    }));
+  }
+  areas.forEach((area, index) => {
+    const [x2, y2] = xy(index, 84);
+    chart.append(svgNode('line', { x1: 170, y1: 118, x2, y2, class: 'radar-grid' }));
+    const [x, y] = xy(index, index % 2 === 0 ? 104 : 119);
+    const label = svgNode('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle' });
+    label.textContent = area.name;
+    chart.append(label);
+  });
+  const scores = areas.map((area, index) => xy(index, area.score * 0.84));
+  chart.append(svgNode('polygon', { points: scores.map(pair => pair.join(',')).join(' '), class: 'radar-shape' }));
+  for (const [cx, cy] of scores) chart.append(svgNode('circle', { cx, cy, r: 4, class: 'radar-point' }));
+  section.append(chart);
+  return section;
+}
+
+function areaScoreBars(areas) {
+  const section = card('영역별 점수');
+  const bars = element('div', 'bars');
+  for (const area of areas) {
+    const row = element('div');
+    const label = element('div', 'barlabel');
+    label.append(element('span', '', area.name), element('strong', '', `${area.score}/100`));
+    const track = element('div', 'barbg');
+    const fill = element('div', 'barfill');
+    fill.style.width = area.score + '%';
+    track.setAttribute('aria-hidden', 'true');
+    track.append(fill);
+    row.append(label, track);
+    bars.append(row);
+  }
+  section.append(bars);
+  return section;
+}
+
+function areaFeedbackList(report) {
+  const section = card('영역별 피드백');
+  for (const area of report.areas) {
+    const item = element('div', 'subcard');
+    item.append(
+      element('h3', '', area.name + ' · ' + area.levelLabel),
+      element('p', '', area.feedback),
+      element('p', 'next-action', '다음 단계 · ' + area.next),
+    );
+    section.append(item);
+  }
+  if (report.verdict.key === 'moreValidation' && report.evidenceChecks?.length) {
+    const checks = element('div', 'evidence');
+    const list = element('ul');
+    for (const check of report.evidenceChecks) list.append(element('li', '', check.area + ' · ' + check.item));
+    checks.append(element('h3', '', '추가로 확인할 근거 문항'), list);
+    section.append(checks);
+  }
+  return section;
+}
+
+function validationSummary(rows) {
+  const section = card('BM 초기 검증 보고서');
+  const list = element('dl', 'validation-list');
+  for (const row of rows) {
+    const item = element('div');
+    const detail = element('dd');
+    if (row.head) detail.append(element('strong', '', row.head));
+    detail.append(element('p', '', row.body));
+    item.append(element('dt', '', row.row), detail);
+    list.append(item);
+  }
+  section.append(list);
+  return section;
+}
+
+function unverifiedHypotheses({ weakShown, weakHypotheses }) {
+  const section = card('다음에 확인할 가설');
+  if (!weakShown.length) {
+    section.append(element('p', 'recommend', '2점 이하로 답한 항목이 없어요. 3점으로 답한 항목은 실제 근거를 더 확인해 보세요.'));
+    return section;
+  }
+  section.append(element('p', 'recommend', `전체 ${weakHypotheses.length}개 중 ${weakShown.length}개 표시`));
+  const list = element('ul', 'weak-items');
+  for (const item of weakShown) {
+    list.append(element('li', '', `${item.area} · ${item.hypothesis} (문항 ${item.qNo}, ${item.score}점)`));
+  }
+  section.append(list);
+  return section;
+}
+
+function claudeAnalysis({ summary, areas, nextSteps }) {
+  const section = card('Claude 분석');
+  section.classList.add('claude-card');
+  section.append(element('p', 'recommend', summary));
+
+  const insights = element('dl', 'validation-list');
+  for (const { name, insight } of areas) {
+    const row = element('div');
+    row.append(element('dt', '', name), element('dd', '', insight));
+    insights.append(row);
+  }
+
+  const actions = element('ol', 'weak-items');
+  for (const step of nextSteps) actions.append(element('li', '', step));
+  section.append(insights, element('h3', '', '다음 검증 행동'), actions);
+  return section;
+}
+
+function reportActions(summary, restart) {
+  const wrapper = element('div', 'report-action-block');
+  const actions = element('div', 'report-actions');
+  const status = element('p', 'inline-status');
+  status.setAttribute('role', 'status');
+  const copy = button('요약 복사', 'secondary', async () => {
+    try {
+      await navigator.clipboard.writeText(summary);
+      status.textContent = '요약을 복사했어요.';
+    } catch {
+      status.textContent = '자동 복사가 어려워요. 아래 요약을 직접 복사해 주세요.';
+      let text = wrapper.querySelector('textarea');
+      if (!text) {
+        text = element('textarea', 'copy-summary');
+        text.readOnly = true;
+        text.value = summary;
+        text.setAttribute('aria-label', '복사할 진단 요약');
+        wrapper.append(text);
+      }
+      text.focus();
+      text.select();
+    }
+  });
+  actions.append(copy, button('다시 진단하기', 'primary', restart));
+  wrapper.append(actions, status);
+  return wrapper;
+}
+
+function reportScreen(report, restart, retry) {
+  const charts = element('div', 'reportgrid');
+  charts.append(areaRadarChart(report.areas), areaScoreBars(report.areas));
+  const details = element('div', 'reportgrid report-detail');
+  details.append(validationSummary(report.table), unverifiedHypotheses(report));
+  const blocks = [reportHeader(report), verdictCard(report), areaScoreCards(report.areas), priorityActionCard(report)];
+  const analysis = report.analysis;
+  let summary = report.summary;
+  if (analysis) {
+    blocks.push(claudeAnalysis(analysis));
+    summary += '\n\n' + [
+      '[Claude 분석]', analysis.summary,
+      ...analysis.areas.map(({ name, insight }) => `- ${name} · ${insight}`),
+      '[다음 검증 행동]', ...analysis.nextSteps.map((step, index) => `${index + 1}. ${step}`),
+    ].join('\n');
+  }
+  if (report.analysisError) {
+    const status = card('Claude 분석');
+    const message = element('p', 'recommend', report.analysisError);
+    message.setAttribute('role', 'status');
+    status.append(message, button('Claude 분석 다시 시도', 'secondary retry-claude', retry));
+    blocks.push(status);
+  }
+  blocks.push(charts, areaFeedbackList(report), details, reportActions(summary, restart));
+  return blocks;
+}
+
+/* 화면 상태 */
+const byId = id => document.getElementById(id);
+const ui = {
+  home: byId('home'), nav: byId('navigation'), menu: byId('menu'),
+  diagnosisNav: byId('diagnosis-nav'), reportNav: byId('report-nav'), reportNote: byId('report-note'),
+  start: byId('start'), startStatus: byId('start-status'), guide: byId('guide'),
+  transcript: byId('transcript'), progress: byId('progress'), step: byId('step'),
+  composer: byId('composer'), announcement: byId('question-announcement'), previous: byId('previous'),
+};
+byId('analysis-data-note').textContent = staticMode
+  ? '이 파일에서는 브라우저에서 자가진단 점수를 계산해요. Claude 분석은 서버 주소로 접속하면 사용할 수 있어요.'
+  : 'Claude 분석을 위해 입력한 사업 정보와 설문 답변을 Anthropic에 전송해요. 개인정보나 기밀 자료는 입력하지 마세요.';
+const screens = Object.fromEntries(['landing', 'survey', 'analyzing', 'report'].map(name => [name, byId(name)]));
+const state = {
+  screen: 'landing', definition: null, steps: [], responses: [], index: 0,
+  started: false, report: null, pending: null,
+};
+
+byId('landing-wave').append(bmOrbWave());
+byId('survey-wave').append(bmOrbWave());
+
+function closeMenu() {
+  ui.menu.setAttribute('aria-expanded', 'false');
+}
+
+function show(name) {
+  state.screen = name;
+  for (const [key, screen] of Object.entries(screens)) screen.hidden = key !== name;
+  const isReport = name === 'report';
+  ui.diagnosisNav.classList.toggle('active', !isReport);
+  ui.reportNav.classList.toggle('active', isReport);
+  ui.diagnosisNav.removeAttribute('aria-current');
+  ui.reportNav.removeAttribute('aria-current');
+  (isReport ? ui.reportNav : ui.diagnosisNav).setAttribute('aria-current', 'page');
+  ui.reportNav.disabled = !state.report;
+  ui.reportNote.hidden = Boolean(state.report);
+  ui.start.textContent = state.started && !state.report ? '진단 이어하기 →' : '무료 진단 시작하기 →';
+  closeMenu();
+  window.scrollTo(0, 0);
+  screens[name].querySelector('h1')?.focus({ preventScroll: true });
+}
+
+function updateProgress(submitted = false) {
+  const last = state.steps.length - 1;
+  ui.progress.max = state.steps.length;
+  ui.progress.value = state.responses.reduce(
+    (count, value, index) => count + Number(value !== undefined && (index !== last || submitted)), 0,
+  );
+}
+
+function renderQuestion({ focus = false } = {}) {
+  const { definition, steps, responses, index } = state;
+  const step = steps[index];
+  const isLast = index === steps.length - 1;
+  const basics = definition.basics.length;
+  ui.step.textContent = step.type === 'text'
+    ? `기본정보 ${index + 1}/${basics}`
+    : `${step.area.name} · ${index - basics + 1}/${steps.length - basics}`;
+  ui.previous.disabled = index === 0;
+  updateProgress();
+
+  ui.transcript.replaceChildren(...chatTranscript(steps, responses, index, definition));
+  const activeIndex = index;
+  const answer = value => {
+    if (state.screen !== 'survey' || state.index !== activeIndex) return;
+    state.responses[index] = value;
+    if (isLast) return;
+    state.index++;
+    renderQuestion({ focus: true });
+  };
+
+  const controls = step.type === 'text'
+    ? textAnswerComposer(step, responses[index], step.maxLength, answer)
+    : scaleAnswerComposer(definition.scaleLabels, responses[index], isLast, answer, analyze);
+  ui.composer.replaceChildren(controls);
+  ui.announcement.textContent = ui.step.textContent + '. ' + step.prompt;
+
+  requestAnimationFrame(() => {
+    if (state.screen !== 'survey' || state.index !== activeIndex) return;
+    ui.transcript.scrollTop = ui.transcript.scrollHeight;
+    if (focus) {
+      const control = ui.composer.querySelector('input, [aria-pressed="true"]') ?? ui.composer.querySelector('button');
+      control?.focus({ preventScroll: true });
+    }
+  });
+}
+
+function openSurvey({ focus = false } = {}) {
+  show('survey');
+  renderQuestion({ focus });
+}
+
+function resetSurvey() {
+  state.started = true;
+  state.index = 0;
+  state.report = null;
+  state.responses = Array(state.steps.length);
+  screens.report.replaceChildren();
+  openSurvey();
+}
+
+async function startSurvey() {
+  ui.start.disabled = true;
+  ui.startStatus.textContent = '';
+  try {
+    if (!state.definition) {
+      ui.startStatus.textContent = '진단 질문을 불러오는 중이에요.';
+      state.definition = await getQuestions();
+      state.steps = buildSteps(state.definition);
+    }
+    if (state.started && !state.report) openSurvey();
+    else if (!state.report || window.confirm('현재 리포트를 지우고 다시 시작할까요?')) resetSurvey();
+  } catch {
+    ui.startStatus.textContent = '진단 질문을 불러오지 못했어요. 시작 버튼을 눌러 다시 시도해 주세요.';
+    return;
+  } finally {
+    ui.start.disabled = false;
+  }
+  ui.startStatus.textContent = '';
+}
+
+function collectAnswers() {
+  const info = {};
+  const answers = state.definition.areas.map(area => Array(area.items.length));
+  state.steps.forEach((step, index) => {
+    if (step.type === 'text') info[step.key] = state.responses[index];
+    else answers[step.areaIndex][step.itemIndex] = state.responses[index];
+  });
+  return { info, answers };
+}
+
+function cancelAnalysis() {
+  state.pending?.abort();
+  state.pending = null;
+}
+
+async function analyze() {
+  if (state.pending || state.responses.at(-1) === undefined) return;
+  const pending = new AbortController();
+  state.pending = pending;
+  updateProgress(true);
+  screens.analyzing.replaceChildren(...analysisScreen());
+  show('analyzing');
+  const { info, answers } = collectAnswers();
+  const motionReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const minimum = new Promise(resolve => setTimeout(resolve, motionReduced ? 0 : 700));
+
+  try {
+    const [report] = await Promise.all([getReport(info, answers, pending.signal), minimum]);
+    if (pending.signal.aborted) return;
+    screens.report.replaceChildren(...reportScreen(report, () => {
+      if (window.confirm('현재 리포트를 지우고 다시 시작할까요?')) resetSurvey();
+    }, analyze));
+    state.report = report;
+    show('report');
+  } catch (error) {
+    if (pending.signal.aborted) return;
+    const message = error instanceof TypeError ? '연결을 확인한 뒤 다시 시도해 주세요.' : error.message;
+    screens.analyzing.replaceChildren(...analysisScreen({ message, retry: analyze, review: openSurvey }));
+    screens.analyzing.querySelector('h1').focus();
+  } finally {
+    if (state.pending === pending) state.pending = null;
+  }
+}
+
+ui.start.addEventListener('click', startSurvey);
+ui.previous.addEventListener('click', () => {
+  if (state.index <= 0) return;
+  state.index--;
+  renderQuestion({ focus: true });
+});
+ui.home.addEventListener('click', () => {
+  cancelAnalysis();
+  show('landing');
+});
+ui.diagnosisNav.addEventListener('click', () => {
+  cancelAnalysis();
+  if (state.started && !state.report) openSurvey();
+  else show('landing');
+});
+ui.reportNav.addEventListener('click', () => {
+  if (state.report) {
+    cancelAnalysis();
+    show('report');
+  }
+});
+ui.menu.addEventListener('click', () => {
+  const open = ui.menu.getAttribute('aria-expanded') === 'true';
+  ui.menu.setAttribute('aria-expanded', String(!open));
+});
+byId('guide-nav').addEventListener('click', () => ui.guide.showModal());
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "bm-survey",
+  "private": true,
+  "engines": { "node": ">=20.6.0" },
+  "scripts": {
+    "start": "node server.mjs",
+    "start:local": "node --env-file=.env server.mjs",
+    "test": "node test-bm-logic.js"
+  }
+}
